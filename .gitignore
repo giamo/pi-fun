@@ -1,0 +1,7 @@
+bin/
+.idea
+/project/project
+/project/target
+/target
+tmp/
+logs/
