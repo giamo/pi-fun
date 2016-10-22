@@ -6,21 +6,33 @@ import scala.util.{Failure, Success}
 
 import com.typesafe.scalalogging.LazyLogging
 import play.api.mvc.{Action, AnyContent, Controller}
-
-import controllers.results.Problems.{PathNotFound, ServerError}
-import services.AudioService
+import controllers.results.Problems.{PathNotFound, AudioConflict, ServerError}
+import services.{AudioService, NoAudioPlayingOrPaused}
 
 
 class LocalAudioController @Inject()(audioService: AudioService) extends Controller with LazyLogging {
 
-  def play(audioPath: String): Action[AnyContent] = Action { implicit request =>
-    audioService.playLocalFile(audioPath) match {
-      case Success(_) => Ok(s"Playing audio file: $audioPath")
-      case Failure(ex: FileNotFoundException) =>
-        PathNotFound(s"The provided local audio file does not exist: $audioPath")
+  def play(filePath: String) = Action { implicit request =>
+    audioService.playLocalAudio(filePath) match {
+      case Success(_) => Ok(s"Playing audio file: $filePath")
+      case Failure(_: FileNotFoundException) =>
+        PathNotFound(s"The provided local audio file does not exist: $filePath")
       case Failure(ex) =>
-        logger.error(s"Failure while playing audio from local file $audioPath", ex)
-        ServerError(s"Unexpected error while playing local audio file: $audioPath")
+        val message = s"Unexpected error while playing local audio file: $filePath"
+        logger.error(message, ex)
+        ServerError(message)
     }
   }
+
+  def pauseResume(): Action[AnyContent] = Action { implicit request =>
+    audioService.pauseResume() match {
+      case Success(_) => Ok(s"Successfully resumed/paused audio")
+      case Failure(aex: NoAudioPlayingOrPaused) => AudioConflict(aex.message)
+      case Failure(ex) =>
+        val message = "Unexpected error while resuming/pausing audio"
+        logger.error(message, ex)
+        ServerError(message)
+    }
+  }
+
 }

@@ -26,4 +26,8 @@ object Problems {
     def apply(message: String): Result = ProblemJson(INTERNAL_SERVER_ERROR, "Internal server error", message).toResult
   }
 
+  object AudioConflict {
+    def apply(message: String): Result = ProblemJson(CONFLICT, "Conflict", message).toResult
+  }
+
 }

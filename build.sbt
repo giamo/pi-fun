@@ -11,6 +11,13 @@ libraryDependencies ++= Seq(
   cache,
   ws,
   "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
-  "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test
+  "com.googlecode.soundlibs" % "basicplayer" % "3.0.0.0"
 )
+
+val testDependencies = Seq(
+  "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test,
+  "org.mockito" % "mockito-core" % "2.7.19" % Test
+)
+
+libraryDependencies ++= testDependencies
 

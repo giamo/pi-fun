@@ -1,31 +1,40 @@
 package services
 
-import java.io.{FileInputStream, InputStream}
-
+import java.net.URL
 import scala.util.Try
 
-import com.google.inject.{ImplementedBy, Singleton}
-import sun.audio.{AudioPlayer, AudioStream}
+import com.google.inject.ImplementedBy
+import javax.inject.Inject
+import javazoom.jlgui.basicplayer.BasicPlayer
+
 
 @ImplementedBy(classOf[AudioServiceImpl])
 trait AudioService {
 
-  def playLocalFile(filePath: String): Try[Unit]
+  def playLocalAudio(filePath: String): Try[Unit]
+
+  def pauseResume(): Try[Unit]
 
 }
 
 
-class AudioServiceImpl() extends AudioService {
+class AudioServiceImpl @Inject()(audioPlayer : BasicPlayer) extends AudioService {
 
-  val player: AudioPlayer = AudioPlayer.player
+  override def playLocalAudio(filePath: String): Try[Unit] = Try {
+    audioPlayer.open(new URL("file:///" + filePath))
+    audioPlayer.play()
+  }
 
-  override def playLocalFile(filePath: String): Try[Unit] = {
-    Try {
-      val is: InputStream = new FileInputStream(filePath)
-      val audioStream: AudioStream = new AudioStream(is)
+  override def pauseResume(): Try[Unit] = Try {
+    import BasicPlayer._
 
-      player.start(audioStream)
+    audioPlayer.getStatus match {
+      case PLAYING => audioPlayer.pause()
+      case PAUSED => audioPlayer.resume()
+      case _ => throw NoAudioPlayingOrPaused("No audio is currently playing or paused")
     }
   }
 
 }
+
+case class NoAudioPlayingOrPaused(message: String) extends Exception(message)
