@@ -13,6 +13,8 @@ trait AudioService {
 
   def playLocalAudio(filePath: String): Try[Unit]
 
+  def playNetworkAudio(url: String): Try[Unit]
+
   def pauseResume(): Try[Unit]
 
 }
@@ -22,6 +24,11 @@ class AudioServiceImpl @Inject()(audioPlayer : BasicPlayer) extends AudioService
 
   override def playLocalAudio(filePath: String): Try[Unit] = Try {
     audioPlayer.open(new URL("file:///" + filePath))
+    audioPlayer.play()
+  }
+
+  override def playNetworkAudio(url: String): Try[Unit] = Try {
+    audioPlayer.open(new URL(url))
     audioPlayer.play()
   }
 

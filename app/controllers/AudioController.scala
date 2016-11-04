@@ -10,7 +10,7 @@ import controllers.results.Problems.{PathNotFound, AudioConflict, ServerError}
 import services.{AudioService, NoAudioPlayingOrPaused}
 
 
-class LocalAudioController @Inject()(audioService: AudioService) extends Controller with LazyLogging {
+class AudioController @Inject()(audioService: AudioService) extends Controller with LazyLogging {
 
   def play(filePath: String) = Action { implicit request =>
     audioService.playLocalAudio(filePath) match {
@@ -19,6 +19,18 @@ class LocalAudioController @Inject()(audioService: AudioService) extends Control
         PathNotFound(s"The provided local audio file does not exist: $filePath")
       case Failure(ex) =>
         val message = s"Unexpected error while playing local audio file: $filePath"
+        logger.error(message, ex)
+        ServerError(message)
+    }
+  }
+
+  def playURL(url: String) = Action { implicit request =>
+    audioService.playNetworkAudio(url) match {
+      case Success(_) => Ok(s"Playing audio URL: $url")
+      case Failure(_: FileNotFoundException) =>
+        PathNotFound(s"The provided URL audio does not exist: $url")
+      case Failure(ex) =>
+        val message = s"Unexpected error while playing URL audio: $url"
         logger.error(message, ex)
         ServerError(message)
     }
