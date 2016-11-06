@@ -2,15 +2,21 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-# Placeholder controller
-GET /                           controllers.HomeController.index
+# Base controller
+GET /                                   controllers.AppController.main(any = "none")
 
-# Local audio controller
-GET /api/music/pauseresume  controllers.AudioController.pauseResume()
+GET     /views/home                     controllers.AppController.index()
 
-GET /api/music/play-local/:filePath  controllers.AudioController.play(filePath)
+GET     /views/music                    controllers.AppController.music()
 
-GET /api/music/play-url/:url controllers.AudioController.playURL(url)
+# Audio controller
+GET /api/music/pauseresume              controllers.AudioController.pauseResume()
+
+GET /api/music/play-local/:filePath     controllers.AudioController.play(filePath)
+
+GET /api/music/play-url/:url            controllers.AudioController.playURL(url)
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+GET     /assets/*file                   controllers.Assets.versioned(path="/public", file: Asset)
+
+GET /*any                               controllers.AppController.main(any)
