@@ -2,11 +2,15 @@ package controllers
 
 import java.io.FileNotFoundException
 import javax.inject.Inject
+
 import scala.util.{Failure, Success}
 
 import com.typesafe.scalalogging.LazyLogging
+import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, Controller}
-import controllers.results.Problems.{PathNotFound, AudioConflict, ServerError}
+
+import controllers.results.Problems.{AudioConflict, PathNotFound, ServerError}
+import models.JsonOps._
 import services.{AudioService, NoAudioPlayingOrPaused}
 
 
@@ -42,6 +46,16 @@ class AudioController @Inject()(audioService: AudioService) extends Controller w
       case Failure(aex: NoAudioPlayingOrPaused) => AudioConflict(aex.message)
       case Failure(ex) =>
         val message = "Unexpected error while resuming/pausing audio"
+        logger.error(message, ex)
+        ServerError(message)
+    }
+  }
+
+  def playerStatus(): Action[AnyContent] = Action { implicit request =>
+    audioService.getPlayerStatus() match {
+      case Success(status) => Ok(Json.toJson(status))
+      case Failure(ex) =>
+        val message = "Unexpected error while getting player status"
         logger.error(message, ex)
         ServerError(message)
     }
