@@ -1,4 +1,4 @@
-angular.module('pi', ["ngResource"])
+angular.module('pi', ['ngResource', 'ngRoute'])
   .config(["$routeProvider", function($routeProvider) {
     return $routeProvider.when('/', {
       templateUrl: 'views/home',

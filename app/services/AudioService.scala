@@ -18,30 +18,32 @@ import models.enums.PlayerStateEnum.PlayerState
 @ImplementedBy(classOf[AudioServiceImpl])
 trait AudioService {
 
-  def playLocalAudio(filePath: String): Try[Unit]
+  def playLocalAudio(filePath: String): Try[PlayerStatus]
 
-  def playNetworkAudio(url: String): Try[Unit]
+  def playNetworkAudio(url: String): Try[PlayerStatus]
 
-  def pauseResume(): Try[Unit]
+  def playPause(): Try[PlayerStatus]
 
-  def getPlayerStatus(): Try[PlayerStatus]
+  def playerStatus(): PlayerStatus
 
 }
 
 
 class AudioServiceImpl @Inject()(audioPlayer : BasicPlayer) extends AudioService with LazyLogging {
 
-  override def playLocalAudio(filePath: String): Try[Unit] = Try {
+  override def playLocalAudio(filePath: String): Try[PlayerStatus] = Try {
     audioPlayer.open(new URL("file:///" + filePath))
     audioPlayer.play()
+    playerStatus
   }
 
-  override def playNetworkAudio(url: String): Try[Unit] = Try {
+  override def playNetworkAudio(url: String): Try[PlayerStatus] = Try {
     audioPlayer.open(new URL(url))
     audioPlayer.play()
+    playerStatus
   }
 
-  override def pauseResume(): Try[Unit] = Try {
+  override def playPause(): Try[PlayerStatus] = Try {
     import BasicPlayer._
 
     audioPlayer.getStatus match {
@@ -49,24 +51,26 @@ class AudioServiceImpl @Inject()(audioPlayer : BasicPlayer) extends AudioService
       case PAUSED => audioPlayer.resume()
       case _ => throw NoAudioPlayingOrPaused("No audio is currently playing or paused")
     }
+
+    playerStatus
   }
 
-  override def getPlayerStatus(): Try[PlayerStatus] = {
+  override def playerStatus: PlayerStatus = {
     // TODO: return metadata information
-    playerState.map(ps => PlayerStatus(ps, None))
+    PlayerStatus(playerState, None)
   }
 
-  private def playerState: Try[PlayerState] = {
+  private def playerState: PlayerState = {
     import BasicPlayer._
 
     audioPlayer.getStatus match {
-      case PLAYING => Success(PlayerStateEnum.PLAYING)
-      case PAUSED => Success(PlayerStateEnum.PAUSED)
-      case UNKNOWN | STOPPED | OPENED | SEEKING => Success(PlayerStateEnum.IDLE)
+      case PLAYING => PlayerStateEnum.PLAYING
+      case PAUSED => PlayerStateEnum.PAUSED
+      case UNKNOWN | STOPPED | OPENED | SEEKING => PlayerStateEnum.IDLE
       case other =>
         val message = s"Unrecognised player state enum value: $other"
         logger.error(message)
-        Failure(new Exception(message))
+        throw new Exception(message)
     }
   }
 

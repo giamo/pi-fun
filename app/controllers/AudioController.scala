@@ -3,7 +3,7 @@ package controllers
 import java.io.FileNotFoundException
 import javax.inject.Inject
 
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 
 import com.typesafe.scalalogging.LazyLogging
 import play.api.libs.json.Json
@@ -30,7 +30,7 @@ class AudioController @Inject()(audioService: AudioService) extends Controller w
 
   def playURL(url: String) = Action { implicit request =>
     audioService.playNetworkAudio(url) match {
-      case Success(_) => Ok(s"Playing audio URL: $url")
+      case Success(playerStatus) => Ok(Json.toJson(playerStatus))
       case Failure(_: FileNotFoundException) =>
         PathNotFound(s"The provided URL audio does not exist: $url")
       case Failure(ex) =>
@@ -40,9 +40,9 @@ class AudioController @Inject()(audioService: AudioService) extends Controller w
     }
   }
 
-  def pauseResume(): Action[AnyContent] = Action { implicit request =>
-    audioService.pauseResume() match {
-      case Success(_) => Ok(s"Successfully resumed/paused audio")
+  def playPause(): Action[AnyContent] = Action { implicit request =>
+    audioService.playPause() match {
+      case Success(playerStatus) => Ok(Json.toJson(playerStatus))
       case Failure(aex: NoAudioPlayingOrPaused) => AudioConflict(aex.message)
       case Failure(ex) =>
         val message = "Unexpected error while resuming/pausing audio"
@@ -52,8 +52,8 @@ class AudioController @Inject()(audioService: AudioService) extends Controller w
   }
 
   def playerStatus(): Action[AnyContent] = Action { implicit request =>
-    audioService.getPlayerStatus() match {
-      case Success(status) => Ok(Json.toJson(status))
+    Try(audioService.playerStatus()) match {
+      case Success(playerStatus) => Ok(Json.toJson(playerStatus))
       case Failure(ex) =>
         val message = "Unexpected error while getting player status"
         logger.error(message, ex)

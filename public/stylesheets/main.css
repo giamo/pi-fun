@@ -1,0 +1,50 @@
+.navbar-brand {
+    position: absolute;
+    width: 100%;
+    left: 0;
+    text-align: center;
+    margin: auto;
+}
+
+#music-container{
+    width:330px;
+    min-height:400px;
+    height: auto;
+    overflow: auto;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+}
+
+#audio-info{
+    text-align:center;
+}
+
+#audio-cover {
+    max-height: 200px;
+    max-width: 200px;
+}
+
+#audio-buttons {
+    text-align: center;
+    overflow: auto;
+    float: center;
+}
+
+button#play{
+    width: 70px;
+    height: 70px;
+    background: url('/assets/images/play.png') no-repeat;
+    float: left;
+    border: 0;
+    outline: none;
+}
+
+button#pause{
+    width: 70px;
+    height: 70px;
+    background: url('/assets/images/pause.png') no-repeat;
+    float: left;
+    border: 0;
+    outline:none;
+}

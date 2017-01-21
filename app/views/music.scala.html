@@ -1,60 +1,24 @@
 @()
 
 @template() {
-    <div ng-controller="MusicCtrl">
-        <div id="music-container">
-            <div id="audio-player">
-                <div id="audio-info">
-                    {{currentSong.title || ""}}
-                </div>
-                <br/>
-                <div id="audio-cover">
-                    <img id="img-cover" src="{{currentSong.cover || defaultCover}}"/>
-                </div>
-                <br/>
-                <div id="audio-buttons">
-                    <span>
-                        <button id="prev" ng-click="vlc.prev()" />
-                        <button id="pause" ng-if="isPlaying" ng-click="vlc.playPause()" />
-                        <button id="play" ng-if="!isPlaying" ng-click="vlc.playPause()" />
-                        <button id="stop" ng-click="vlc.stop()" />
-                        <button id="next" ng-click="vlc.next()" />
-                    </span>
-                </div>
-                <div id="song-duration">
-                    <div id="song-time-elapsed">{{formatAudioLength(currentSong.length - currentSong.remaining) || 00.00}}</div>
-                    <div id="song-time-remaining">-{{formatAudioLength(currentSong.remaining || 00.00)}}</div>
-                </div>
-                <div class="progress" ng-if="currentSong !== null">
-                    <div class="progress-bar " role="progressbar"
-                    aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: {{100 - (currentSong.remaining / currentSong.length * 100) || 0}}%">
-                    </div>
-                </div>
-
-                <div id="volume">
-                    <div id="volume-button">
-                        <button type="button" class="btn btn-default" ng-if="!volumeMute" ng-click="toggleMute()">
-                            <span class="glyphicon glyphicon-volume-up" aria-hidden="true"></span>
-                        </button>
-                        <button type="button" class="btn btn-default" ng-if="volumeMute" ng-click="toggleMute()">
-                            <span class="glyphicon glyphicon-volume-off" aria-hidden="true"></span>
-                        </button>
-                    </div>
-                    <div id="volume-slider">
-                        <input id="volume-slider" type="range" min="{{minVolume}}" max="{{maxVolume}}" step="10" ng-model="volume" ng-change="vlc.setVolume(volume)"/>
-                    </div>
-                </div>
-                <br/>
-                <div id="playlist">
-                    <span><strong>PLAYLIST</strong></span>
-                    <button ng-click="vlc.clearPlaylist(); getVlcPlaylist()">clear</button>
-                    <div id="playlist-songs" ng-repeat="song in playlist">
-                            <!--<span ng-click="selectCurrentSong(song)" ng-class="{true: 'highlight'}[sameSong(song, currentSong)]">{{song.title}} - {{song.artist}}</span>-->
-                        <span ng-click="selectCurrentSong(song)" ng-class="{true: 'highlight'}[mustHighlight(song)]">{{song.youtubeTitle || song.name}}</span>
-                        <button ng-click="vlc.playById(song.id)" ng-if="mustHighlight(song)">PLAY</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div ng-controller="MusicCtrl">
+  <div id="music-container">
+    <div id="audio-player">
+      <div id="audio-info">
+        {{currentSong.title || ""}}
+      </div>
+      <br/>
+      <div id="audio-cover">
+        <img id="img-cover" src="{{currentSong.cover || defaultCover}}"/>
+      </div>
+      <br/>
+      <div id="audio-buttons">
+        <span>
+          <button id="play" ng-if="!isPlaying" ng-click="player.playPause()" />
+          <button id="pause" ng-if="isPlaying" ng-click="player.playPause()" />
+        </span>
+      </div>
     </div>
+  </div>
+</div>
 }
