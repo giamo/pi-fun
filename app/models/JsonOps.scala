@@ -21,7 +21,8 @@ object JsonOps {
   implicit val formatsAudioMetadata: Format[AudioMetadata] = (
     (__ \ "title").format[String] and
     (__ \ "artist").formatNullable[String] and
-    (__ \ "length").formatNullable[Int] and
+    (__ \ "length").formatNullable[Long] and
+    (__ \ "elapsed").formatNullable[Long] and
     (__ \ "icon_url").formatNullable[String]
   )(AudioMetadata, unlift(AudioMetadata.unapply))
 

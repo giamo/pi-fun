@@ -17,6 +17,7 @@ app.service('PlayerApi', ['$q', '$http', function($q, $http) {
             }
 
             var state = data.state;
+            result.currentSong = {};
 
             if (data.metadata !== undefined) {
                 var meta = data.metadata;
@@ -28,6 +29,10 @@ app.service('PlayerApi', ['$q', '$http', function($q, $http) {
 
                 if (meta.length !== undefined) {
                     result.currentSong.length = meta.length;
+                }
+
+                if (meta.elapsed !== undefined) {
+                    result.currentSong.elapsed = meta.elapsed;
                 }
 
                 if (meta.cover !== undefined) {

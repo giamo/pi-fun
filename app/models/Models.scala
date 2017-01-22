@@ -12,6 +12,7 @@ case class PlayerStatus(
 case class AudioMetadata(
     title: String,
     artist: Option[String],
-    length: Option[Int],
+    length: Option[Long],
+    elapsed: Option[Long],
     cover: Option[String]
 )

@@ -18,6 +18,9 @@
           <button id="pause" ng-if="isPlaying" ng-click="player.playPause()" />
         </span>
       </div>
+      </div>
+      <span>Elapsed: {{currentSong.elapsed || 0}} / length: {{currentSong.length || unknown}}</span>
+      </div>
     </div>
   </div>
 </div>
