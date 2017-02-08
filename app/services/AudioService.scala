@@ -12,7 +12,7 @@ import javazoom.jlgui.basicplayer.{BasicController, BasicPlayer, BasicPlayerEven
 
 import com.typesafe.scalalogging.LazyLogging
 
-import models.{AudioMetadata, PlayerStatus}
+import models.{AudioMetadata, PlayerStatus, Playlist}
 import models.enums.PlayerStateEnum
 import models.enums.PlayerStateEnum.PlayerState
 
@@ -20,22 +20,25 @@ import models.enums.PlayerStateEnum.PlayerState
 @ImplementedBy(classOf[AudioServiceImpl])
 trait AudioService {
 
-  def playLocalAudio(filePath: String): Try[PlayerStatus]
+  def addToPlaylist(audioPath: String): Try[Unit]
 
-  def playNetworkAudio(url: String): Try[PlayerStatus]
+  def play(playListIndex: Int): Try[PlayerStatus]
 
   def playPause(): Try[PlayerStatus]
 
   def playerStatus(): PlayerStatus
+
+  def playlist(): Playlist
 
 }
 
 
 class AudioServiceImpl @Inject()(audioPlayer : BasicPlayer) extends AudioService with LazyLogging {
 
+  var _playlist: Seq[URL] = Seq()
+  var currentPlayListIndex: Int = -1
   var currentSongLengthSeconds: Long = -1L
   var currentSongElapsedSeconds: Long = -1L
-  var currentSongPath = ""
 
   audioPlayer.addBasicPlayerListener(new BasicPlayerListener {
     override def progress(bytesread: Int, microseconds: Long, pcmdata: Array[Byte], properties: util.Map[_, _]): Unit = {
@@ -49,10 +52,13 @@ class AudioServiceImpl @Inject()(audioPlayer : BasicPlayer) extends AudioService
     override def opened(stream: scala.Any, properties: util.Map[_, _]): Unit = {
       import scala.collection.JavaConversions._
 
-      val audioLength: Long = if (!isUrl(currentSongPath)) {
-        val audioFile: File = new File(currentSongPath)
+      val currentUrlPath = _playlist(currentPlayListIndex).toString
+
+      val audioLength: Long = if (isLocalFileUrl(currentUrlPath)) {
+        val audioFile: File = new File(_playlist(currentPlayListIndex).getFile)
         audioFile.length
       } else {
+        logger.warn("Extraction of file length for URL streams currently not supported")
         -1 // TODO: implement file length for url streams
       }
 
@@ -63,22 +69,29 @@ class AudioServiceImpl @Inject()(audioPlayer : BasicPlayer) extends AudioService
         if (frameSize > 0 && frameRate > 0) audioLength / (frameSize * frameRate)
         else -1
 
-      logger.info(s"Audio '$currentSongPath' frame size: $frameSize, frame rate: $frameRate, length: $audioLengthSeconds")
+      logger.info(s"Audio '$currentUrlPath' frame size: $frameSize, frame rate: $frameRate, length: $audioLengthSeconds")
       currentSongLengthSeconds = audioLengthSeconds.toLong
       currentSongElapsedSeconds = 0L
     }
   })
 
-  override def playLocalAudio(filePath: String): Try[PlayerStatus] = Try {
-    currentSongPath = filePath
-    audioPlayer.open(new URL("file:///" + filePath))
-    audioPlayer.play()
-    playerStatus()
+  override def addToPlaylist(audioPath: String): Try[Unit] = {
+    val audioUrlTry = Try {
+      if (isUrl(audioPath)) new URL(audioPath)
+      else new URL(s"file:///$audioPath")
+    }
+
+    logger.info(s"Adding $audioPath to playlist")
+    audioUrlTry.map(url => _playlist = _playlist :+ url)
   }
 
-  override def playNetworkAudio(url: String): Try[PlayerStatus] = Try {
-    currentSongPath = url
-    audioPlayer.open(new URL(url))
+  override def play(playlistIndex: Int): Try[PlayerStatus] = Try {
+    if (playlistIndex < 0 || playlistIndex > _playlist.length - 1)
+      throw new IndexOutOfBoundsException(s"No playlist element found with index: $playlistIndex")
+
+    logger.info(s"Playing playlist element $playlistIndex")
+    currentPlayListIndex = playlistIndex
+    audioPlayer.open(_playlist(playlistIndex))
     audioPlayer.play()
     playerStatus()
   }
@@ -87,27 +100,34 @@ class AudioServiceImpl @Inject()(audioPlayer : BasicPlayer) extends AudioService
     import BasicPlayer._
 
     audioPlayer.getStatus match {
-      case PLAYING => audioPlayer.pause()
-      case PAUSED => audioPlayer.resume()
+      case PLAYING =>
+        logger.info("Pausing playlist")
+        audioPlayer.pause()
+      case PAUSED =>
+        logger.info("Resuming playlist")
+        audioPlayer.resume()
       case _ => throw NoAudioPlayingOrPaused("No audio is currently playing or paused")
     }
 
     playerStatus()
   }
 
-  override def playerStatus(): PlayerStatus = {
-    // TODO: return metadata information
-    PlayerStatus(
-      playerState,
-      Some(AudioMetadata(
-        "TODO: title",
-        None,
-        if (currentSongLengthSeconds > 0) Some(currentSongLengthSeconds) else None,
-        if (currentSongElapsedSeconds > 0) Some(currentSongElapsedSeconds) else None,
-        None
-      ))
-    )
-  }
+  override def playerStatus(): PlayerStatus = PlayerStatus(playerState, playlist())
+
+  override def playlist(): Playlist = Playlist(
+    current =
+      if (currentPlayListIndex > -1) {
+        Some(AudioMetadata(
+          currentPlayListIndex,
+          urlTitle(_playlist(currentPlayListIndex)),
+          None,
+          if (currentSongLengthSeconds > 0) Some(currentSongLengthSeconds) else None,
+          if (currentSongElapsedSeconds > 0) Some(currentSongElapsedSeconds) else None,
+          None
+        ))
+      } else None,
+    titles = _playlist.map(urlTitle(_))
+  )
 
   private def playerState: PlayerState = {
     import BasicPlayer._
@@ -133,6 +153,10 @@ class AudioServiceImpl @Inject()(audioPlayer : BasicPlayer) extends AudioService
       case _ => false
     }
   }
+
+  private def isLocalFileUrl(str: String): Boolean = str.startsWith("file:///")
+
+  private def urlTitle(url: URL) = url.getPath.split("/").last
 }
 
 case class NoAudioPlayingOrPaused(message: String) extends Exception(message)

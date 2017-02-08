@@ -17,26 +17,27 @@ app.service('PlayerApi', ['$q', '$http', function($q, $http) {
             }
 
             var state = data.state;
+            var playlist = data.playlist;
             result.currentSong = {};
 
-            if (data.metadata !== undefined) {
-                var meta = data.metadata;
-                result.currentSong.title = meta.title;
+            if (playlist.current !== undefined) {
+                var curr = playlist.current;
+                result.currentSong.title = curr.title;
 
-                if (meta.artist !== undefined) {
-                    result.currentSong.artist = meta.artist;
+                if (curr.artist !== undefined) {
+                    result.currentSong.artist = curr.artist;
                 }
 
-                if (meta.length !== undefined) {
-                    result.currentSong.length = meta.length;
+                if (curr.length !== undefined) {
+                    result.currentSong.length = curr.length;
                 }
 
-                if (meta.elapsed !== undefined) {
-                    result.currentSong.elapsed = meta.elapsed;
+                if (curr.elapsed !== undefined) {
+                    result.currentSong.elapsed = curr.elapsed;
                 }
 
-                if (meta.cover !== undefined) {
-                    result.currentSong.cover = meta.cover;
+                if (curr.cover !== undefined) {
+                    result.currentSong.cover = curr.cover;
                 }
             }
 
@@ -57,19 +58,10 @@ app.service('PlayerApi', ['$q', '$http', function($q, $http) {
     };
 
     this.playPause = function() {
-        // var deferred = $q.defer();
-        // var result = {};
         return $http.get('/api/player/playpause')
             .success(function(data) {
-                // if (state === 'playing') {
-                //     result.isPlaying = true;
-                // } else {
-                //     result.isPlaying = false;
-                // }
-                // deferred.resolve(result);
             }).error(function(err) {
                 console.log('Error playing/pausing player audio: ' + err);
-                // deferred.resolve(false);
             });
     };
 

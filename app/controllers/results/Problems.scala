@@ -30,4 +30,8 @@ object Problems {
     def apply(message: String): Result = ProblemJson(CONFLICT, "Conflict", message).toResult
   }
 
+  object InvalidPlaylistIndex {
+    def apply(message: String): Result = ProblemJson(BAD_REQUEST, "Bad request", message).toResult
+  }
+
 }

@@ -19,6 +19,7 @@ object JsonOps {
   )(Problem, unlift(Problem.unapply))
 
   implicit val formatsAudioMetadata: Format[AudioMetadata] = (
+    (__ \ "playlist_index").format[Int] and
     (__ \ "title").format[String] and
     (__ \ "artist").formatNullable[String] and
     (__ \ "length").formatNullable[Long] and
@@ -26,9 +27,14 @@ object JsonOps {
     (__ \ "icon_url").formatNullable[String]
   )(AudioMetadata, unlift(AudioMetadata.unapply))
 
+  implicit val formatsPlaylists: Format[Playlist] = (
+    (__ \ "current").formatNullable[AudioMetadata] and
+    (__ \ "titles").format[Seq[String]]
+  )(Playlist, unlift(Playlist.unapply))
+
   implicit val formatsPlayerStatus: Format[PlayerStatus] = (
     (__ \ "state").format[PlayerState] and
-    (__ \ "metadata").formatNullable[AudioMetadata]
+    (__ \ "playlist").format[Playlist]
   )(PlayerStatus, unlift(PlayerStatus.unapply))
 
   private[models] def createEnumFormat[T <: NamedEnum](fn: String => Either[EnumError, T]): Format[T] = new Format[T] {

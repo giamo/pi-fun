@@ -9,32 +9,28 @@ import com.typesafe.scalalogging.LazyLogging
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, Controller}
 
-import controllers.results.Problems.{AudioConflict, PathNotFound, ServerError}
+import controllers.results.Problems.{AudioConflict, InvalidPlaylistIndex, PathNotFound, ServerError}
 import models.JsonOps._
 import services.{AudioService, NoAudioPlayingOrPaused}
 
 
 class AudioController @Inject()(audioService: AudioService) extends Controller with LazyLogging {
 
-  def play(filePath: String) = Action { implicit request =>
-    audioService.playLocalAudio(filePath) match {
-      case Success(_) => Ok(s"Playing audio file: $filePath")
-      case Failure(_: FileNotFoundException) =>
-        PathNotFound(s"The provided local audio file does not exist: $filePath")
+  def play(playlistIndex: Int) = Action { implicit request =>
+    audioService.play(playlistIndex) match {
+      case Success(playerStatus) => Ok(Json.toJson(playerStatus))
+      case Failure(ex: IndexOutOfBoundsException) => InvalidPlaylistIndex(ex.getMessage)
       case Failure(ex) =>
-        val message = s"Unexpected error while playing local audio file: $filePath"
+        val message = s"Eror while playing playlist element with index $playlistIndex"
         logger.error(message, ex)
         ServerError(message)
     }
   }
-
-  def playURL(url: String) = Action { implicit request =>
-    audioService.playNetworkAudio(url) match {
-      case Success(playerStatus) => Ok(Json.toJson(playerStatus))
-      case Failure(_: FileNotFoundException) =>
-        PathNotFound(s"The provided URL audio does not exist: $url")
+  def enqueue(audioPath: String) = Action { implicit request =>
+    audioService.addToPlaylist(audioPath) match {
+      case Success(_) => Ok(s"Added audio with path $audioPath to the playlist")
       case Failure(ex) =>
-        val message = s"Unexpected error while playing URL audio: $url"
+        val message = s"Eror while adding audio file to playlist: $audioPath"
         logger.error(message, ex)
         ServerError(message)
     }
@@ -59,6 +55,10 @@ class AudioController @Inject()(audioService: AudioService) extends Controller w
         logger.error(message, ex)
         ServerError(message)
     }
+  }
+
+  def playlist(): Action[AnyContent] = Action { implicit request =>
+    Ok(Json.toJson(audioService.playlist()))
   }
 
 }
