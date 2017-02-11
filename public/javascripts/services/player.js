@@ -58,7 +58,7 @@ app.service('PlayerApi', ['$q', '$http', function($q, $http) {
     };
 
     this.playPause = function() {
-        return $http.get('/api/player/playpause')
+        return $http.post('/api/player/playpause')
             .success(function(data) {
             }).error(function(err) {
                 console.log('Error playing/pausing player audio: ' + err);

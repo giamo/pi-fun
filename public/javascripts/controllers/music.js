@@ -3,6 +3,7 @@ var app = angular.module('pi');
 app.controller('MusicCtrl', [ '$scope', '$interval', 'PlayerApi', function($scope, $interval, PlayerApi) {
 
     $scope.player = PlayerApi;
+    $scope.defaultCover = '/assets/images/raspberry_pi_logo.png';
 
     // get status info every 500 milliseconds
     $interval(function() {
