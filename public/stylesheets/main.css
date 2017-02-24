@@ -55,6 +55,37 @@ button#pause{
     outline:none;
 }
 
+button#stop{
+	width: 70px;
+	height: 70px;
+	background: url(../images/stop.png) no-repeat;
+	float: left;
+	border: 0;
+	outline: none;
+}
+
+button#prev{
+	width:70px;
+	height: 70px;
+	background:url(../images/prev.png) no-repeat;
+	float: left;
+	margin-top: 15px;
+	margin-top: 15px;
+	border: 0;
+	outline: none;
+}
+
+button#next{
+	width: 70px;
+	height: 35px;
+	background: url(../images/next.png) no-repeat;
+	float: left;
+	margin-top: 15px;
+	margin-left: 15px;
+	border: none;
+	outline: none;
+}
+
 .highlight {
   background: rgba(255, 230, 0, 0.5);
   line-height: 1.7;

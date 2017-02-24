@@ -31,4 +31,12 @@ app.controller('MusicCtrl', [ '$scope', '$interval', 'PlayerApi', function($scop
      $scope.selectCurrentSong = function(thisSong) {
         $scope.currentSongId = thisSong.id;
      };
+
+     $scope.playNext = function() {
+        $scope.player.play($scope.currentSongId + 1);
+     };
+
+     $scope.playPrevious = function() {
+        $scope.player.play($scope.currentSongId - 1);
+     };
 }]);

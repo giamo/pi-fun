@@ -26,6 +26,8 @@ trait AudioService {
 
   def playPause(): Try[PlayerStatus]
 
+  def stop(): Try[PlayerStatus]
+
   def playerStatus(): PlayerStatus
 
   def playlist(): Playlist
@@ -108,6 +110,16 @@ class AudioServiceImpl @Inject()(audioPlayer : BasicPlayer) extends AudioService
         audioPlayer.resume()
       case _ => throw NoAudioPlayingOrPaused("No audio is currently playing or paused")
     }
+
+    playerStatus()
+  }
+
+  override def stop(): Try[PlayerStatus] = Try {
+    logger.info("Stopping player audio")
+    audioPlayer.stop()
+    currentPlayListIndex = -1
+    currentSongElapsedSeconds = 0
+    currentSongLengthSeconds = 0
 
     playerStatus()
   }

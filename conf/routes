@@ -10,9 +10,11 @@ GET     /views/home                     controllers.AppController.index()
 GET     /views/music                    controllers.AppController.music()
 
 # Audio player
-POST /api/player/play/:index             controllers.AudioController.play(index: Int)
+POST /api/player/play/:index            controllers.AudioController.play(index: Int)
 
-POST /api/player/playpause               controllers.AudioController.playPause()
+POST /api/player/playpause              controllers.AudioController.playPause()
+
+POST /api/player/atop                   controllers.AudioController.stop()
 
 POST /api/player/add/:audioPath         controllers.AudioController.enqueue(audioPath)
 

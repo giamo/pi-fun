@@ -47,6 +47,16 @@ class AudioController @Inject()(audioService: AudioService) extends Controller w
     }
   }
 
+  def stop(): Action[AnyContent] = Action { implicit request =>
+    audioService.stop() match {
+      case Success(playerStatus) => Ok(Json.toJson(playerStatus))
+      case Failure(ex) =>
+        val message = "Unexpected error while stopping audio"
+        logger.error(message, ex)
+        ServerError(message)
+    }
+  }
+
   def playerStatus(): Action[AnyContent] = Action { implicit request =>
     Try(audioService.playerStatus()) match {
       case Success(playerStatus) => Ok(Json.toJson(playerStatus))

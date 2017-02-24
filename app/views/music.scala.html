@@ -14,8 +14,11 @@
       <br/>
       <div id="audio-buttons">
         <span>
-          <button id="play" ng-if="!isPlaying" ng-click="player.playPause()" />
-          <button id="pause" ng-if="isPlaying" ng-click="player.playPause()" />
+          <button id="prev" ng-click="playPrevious()"></button>
+          <button id="play" ng-if="!isPlaying" ng-click="player.playPause()"></button>
+          <button id="pause" ng-if="isPlaying" ng-click="player.playPause()"></button>
+          <button id="stop" ng-click="player.stop()"></button>
+          <button id="next" ng-click="playNext()"></button>
         </span>
       </div>
     </div>

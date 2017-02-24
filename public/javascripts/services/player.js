@@ -66,16 +66,23 @@ app.service('PlayerApi', ['$q', '$http', function($q, $http) {
             });
     };
 
-    this.updatePlayingStatus = function(state) {
-
-    }
-
     this.play = function(index) {
         var deferred = $q.defer();
         var result = {};
 
-        $http.post('/api/player/play/' + index).success(function(data) {
-
+        $http.post('/api/player/play/' + index).success(function(data) {})
+        .error(function(err) {
+            console.log('Error playing song with id ' + index + ': ' + err);
         });
-    }
+    };
+
+    this.stop = function() {
+        var deferred = $q.defer();
+        var result = {};
+
+        $http.post('/api/player/stop').success(function(data) {})
+        .error(function(err) {
+            console.log('Error stopping player audio: ' + err);
+        });
+    };
 }]);
