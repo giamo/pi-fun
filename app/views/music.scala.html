@@ -5,7 +5,7 @@
   <div id="music-container">
     <div id="audio-player">
       <div id="audio-info">
-        {{currentSong.title || ""}}
+        <strong>{{currentSong.title || ""}}</strong>
       </div>
       <br/>
       <div id="audio-cover">
@@ -18,9 +18,14 @@
           <button id="pause" ng-if="isPlaying" ng-click="player.playPause()" />
         </span>
       </div>
-      </div>
-      <span>Elapsed: {{currentSong.elapsed || '--'}} / length: {{currentSong.length || '--'}}</span>
-      </div>
+    </div>
+    <span>Elapsed: {{currentSong.elapsed || '--'}} / length: {{currentSong.length || '--'}}</span>
+  </div>
+  <div id="playlist">
+    <span><strong>PLAYLIST</strong></span>
+    <div id="playlist-songs" ng-repeat="song in playlist.songs track by $index">
+      <span ng-click="selectCurrentSong(song)" ng-class="{true: 'highlight'}[mustHighlight(song)]">{{song.id}}: {{song.title}}</span>
+      <button ng-click="player.play(song.id)" ng-if="!mustHighlight(song)">PLAY</button>
     </div>
   </div>
 </div>

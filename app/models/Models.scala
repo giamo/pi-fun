@@ -10,7 +10,7 @@ case class PlayerStatus(
 )
 
 case class AudioMetadata(
-    playListIndex: Int,
+    id: Int,
     title: String,
     artist: Option[String],
     length: Option[Long],
@@ -19,6 +19,6 @@ case class AudioMetadata(
 )
 
 case class Playlist(
-    current: Option[AudioMetadata], // optional information about current audio played
-    titles: Seq[String]
+    current: Option[Int], // index of currently playing audio
+    songs: Seq[AudioMetadata]
 )

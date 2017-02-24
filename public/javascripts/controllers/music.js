@@ -15,6 +15,20 @@ app.controller('MusicCtrl', [ '$scope', '$interval', 'PlayerApi', function($scop
             $scope.playerUnreachable = (result.playerUnreachable !== undefined) ? result.playerUnreachable : true;
             $scope.isPlaying = (result.isPlaying !== undefined) ? result.isPlaying : false;
             $scope.currentSong = (result.currentSong !== undefined) ? result.currentSong : {};
+            $scope.currentSongId = (result.playlist !== undefined) ? result.playlist.current : {};
+            $scope.playlist = result.playlist;
         });
     };
+
+    $scope.mustHighlight = function(song) {
+        if (song === null) {
+            return false;
+    	}
+
+        return song.id == $scope.currentSongId;
+     };
+
+     $scope.selectCurrentSong = function(thisSong) {
+        $scope.currentSongId = thisSong.id;
+     };
 }]);

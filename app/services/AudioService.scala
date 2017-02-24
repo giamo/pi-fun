@@ -115,18 +115,17 @@ class AudioServiceImpl @Inject()(audioPlayer : BasicPlayer) extends AudioService
   override def playerStatus(): PlayerStatus = PlayerStatus(playerState, playlist())
 
   override def playlist(): Playlist = Playlist(
-    current =
-      if (currentPlayListIndex > -1) {
-        Some(AudioMetadata(
-          currentPlayListIndex,
-          urlTitle(_playlist(currentPlayListIndex)),
-          None,
-          if (currentSongLengthSeconds > 0) Some(currentSongLengthSeconds) else None,
-          if (currentSongElapsedSeconds > 0) Some(currentSongElapsedSeconds) else None,
-          None
-        ))
-      } else None,
-    titles = _playlist.map(urlTitle(_))
+    current = if (currentPlayListIndex > -1) Some(currentPlayListIndex) else None,
+    songs = _playlist.zipWithIndex.map { case (url: URL, idx: Int) =>
+      AudioMetadata(
+        idx,
+        urlTitle(url),
+        None,
+        if (idx == currentPlayListIndex) Some(currentSongLengthSeconds) else None,
+        if (idx == currentPlayListIndex) Some(currentSongElapsedSeconds) else None,
+        None
+      )
+    }
   )
 
   private def playerState: PlayerState = {

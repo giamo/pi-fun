@@ -18,10 +18,11 @@ app.service('PlayerApi', ['$q', '$http', function($q, $http) {
 
             var state = data.state;
             var playlist = data.playlist;
+            result.playlist = playlist;
             result.currentSong = {};
 
             if (playlist.current !== undefined) {
-                var curr = playlist.current;
+                var curr = playlist.songs[playlist.current];
                 result.currentSong.title = curr.title;
 
                 if (curr.artist !== undefined) {
@@ -67,5 +68,14 @@ app.service('PlayerApi', ['$q', '$http', function($q, $http) {
 
     this.updatePlayingStatus = function(state) {
 
+    }
+
+    this.play = function(index) {
+        var deferred = $q.defer();
+        var result = {};
+
+        $http.post('/api/player/play/' + index).success(function(data) {
+
+        });
     }
 }]);

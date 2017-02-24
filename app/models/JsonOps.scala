@@ -19,7 +19,7 @@ object JsonOps {
   )(Problem, unlift(Problem.unapply))
 
   implicit val formatsAudioMetadata: Format[AudioMetadata] = (
-    (__ \ "playlist_index").format[Int] and
+    (__ \ "id").format[Int] and
     (__ \ "title").format[String] and
     (__ \ "artist").formatNullable[String] and
     (__ \ "length").formatNullable[Long] and
@@ -28,8 +28,8 @@ object JsonOps {
   )(AudioMetadata, unlift(AudioMetadata.unapply))
 
   implicit val formatsPlaylists: Format[Playlist] = (
-    (__ \ "current").formatNullable[AudioMetadata] and
-    (__ \ "titles").format[Seq[String]]
+    (__ \ "current").formatNullable[Int] and
+    (__ \ "songs").format[Seq[AudioMetadata]]
   )(Playlist, unlift(Playlist.unapply))
 
   implicit val formatsPlayerStatus: Format[PlayerStatus] = (
