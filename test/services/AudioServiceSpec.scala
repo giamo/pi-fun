@@ -9,39 +9,41 @@ import org.mockito.Mockito._
 import org.scalatestplus.play.PlaySpec
 
 import models.enums.PlayerStateEnum
+import models.Playlist
 
 
 class AudioServiceSpec extends PlaySpec with MockitoSugar {
+
+  val aInputFile = "/path/to/audio/file.mp3"
+  val aInputUrl = "http://musicwebsite.com/anotherfile.mp3"
 
   "The audio service" should {
 
     import BasicPlayer._
 
-    "open and play the input audio file" in {
+    "add an audio to the playlist" in {
       val mockAudioPlayer = mock[BasicPlayer]
       val service = new AudioServiceImpl(mockAudioPlayer)
+      service.playlist() mustBe Playlist(None, Seq())
 
-      val inputFile = "/path/to/audio/file.mp3"
-      val ans = service.playLocalAudio(inputFile)
+      service.addToPlaylist(aInputFile)
+      service._playlist mustBe Seq(new URL(s"file:///$aInputFile"))
 
-      ans.isSuccess mustBe true
-      ans.get.state mustBe PlayerStateEnum.PLAYING
-
-      verify(mockAudioPlayer, times(1)).open(new URL(s"file:///$inputFile"))
-      verify(mockAudioPlayer, times(1)).play()
+      service.addToPlaylist(aInputUrl)
+      service._playlist mustBe Seq(new URL(s"file:///$aInputFile"), new URL(aInputUrl))
     }
 
-    "open and play the input URL audio" in {
+    "open and play the given playlist element" in {
       val mockAudioPlayer = mock[BasicPlayer]
       val service = new AudioServiceImpl(mockAudioPlayer)
 
-      val inputURL = "http://some/audio.mp3"
-      val ans = service.playNetworkAudio(inputURL)
+      service.addToPlaylist(aInputFile)
+      val ans = service.play(0)
 
       ans.isSuccess mustBe true
       ans.get.state mustBe PlayerStateEnum.PLAYING
 
-      verify(mockAudioPlayer, times(1)).open(new URL(inputURL))
+      verify(mockAudioPlayer, times(1)).open(new URL(s"file:///$aInputFile"))
       verify(mockAudioPlayer, times(1)).play()
     }
 

@@ -77,10 +77,16 @@ app.service('PlayerApi', ['$q', '$http', function($q, $http) {
     };
 
     this.stop = function() {
-        var deferred = $q.defer();
-        var result = {};
-
         $http.post('/api/player/stop').success(function(data) {})
+        .error(function(err) {
+            console.log('Error stopping player audio: ' + err);
+        });
+    };
+
+    this.addToQueue = function(path) {
+        console.log(path);
+        console.log(encodeURIComponent(path));
+        $http.post('/api/player/add/' + encodeURIComponent(path)).success(function(data) {})
         .error(function(err) {
             console.log('Error stopping player audio: ' + err);
         });

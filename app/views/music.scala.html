@@ -2,6 +2,12 @@
 
 @template() {
 <div ng-controller="MusicCtrl">
+  <div id="music-add-bar">
+    <form novalidate>
+      <input type="text" placeholder="Type an audio local path or URL" ng-model="result">
+      <input class="btn btn-default" type="submit" ng-click="submitAdd(result)">
+    </form>
+  </div>
   <div id="music-container">
     <div id="audio-player">
       <div id="audio-info">

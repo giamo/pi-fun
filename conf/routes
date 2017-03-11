@@ -14,7 +14,7 @@ POST /api/player/play/:index            controllers.AudioController.play(index: 
 
 POST /api/player/playpause              controllers.AudioController.playPause()
 
-POST /api/player/atop                   controllers.AudioController.stop()
+POST /api/player/stop                   controllers.AudioController.stop()
 
 POST /api/player/add/:audioPath         controllers.AudioController.enqueue(audioPath)
 

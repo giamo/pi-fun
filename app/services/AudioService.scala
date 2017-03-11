@@ -15,6 +15,7 @@ import com.typesafe.scalalogging.LazyLogging
 import models.{AudioMetadata, PlayerStatus, Playlist}
 import models.enums.PlayerStateEnum
 import models.enums.PlayerStateEnum.PlayerState
+import Utils._
 
 
 @ImplementedBy(classOf[AudioServiceImpl])
@@ -79,8 +80,12 @@ class AudioServiceImpl @Inject()(audioPlayer : BasicPlayer) extends AudioService
 
   override def addToPlaylist(audioPath: String): Try[Unit] = {
     val audioUrlTry = Try {
-      if (isUrl(audioPath)) new URL(audioPath)
-      else new URL(s"file:///$audioPath")
+      if (isUrl(audioPath)) {
+        new URL(audioPath)
+      }
+      else {
+        new URL(s"file:///$audioPath")
+      }
     }
 
     logger.info(s"Adding $audioPath to playlist")
@@ -153,21 +158,6 @@ class AudioServiceImpl @Inject()(audioPlayer : BasicPlayer) extends AudioService
         throw new Exception(message)
     }
   }
-
-  private def isUrl(str: String): Boolean = {
-    val rHttp = """http[s]?://.*""".r
-    val rFile = """file:///.*""".r
-    val rAny = """.*://.*""".r
-
-    str match {
-      case rHttp(_) | rFile(_) | rAny(_) => true
-      case _ => false
-    }
-  }
-
-  private def isLocalFileUrl(str: String): Boolean = str.startsWith("file:///")
-
-  private def urlTitle(url: URL) = url.getPath.split("/").last
 }
 
 case class NoAudioPlayingOrPaused(message: String) extends Exception(message)

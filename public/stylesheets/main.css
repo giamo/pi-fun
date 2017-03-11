@@ -92,3 +92,12 @@ button#next{
   border-radius: 3px;
   display:inline-block;
 }
+
+#music-add-bar {
+	margin-top: 10px;
+	width: auto;
+	max-width: 800px;
+	text-align: center;
+	margin-left: auto;
+	margin-right: auto;
+}
